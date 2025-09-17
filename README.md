@@ -394,7 +394,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/dasmrpmunna/AI-Skin-Disease-Classification/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/dasmrpmunna/AI-Skin-Disease-Classification/discussions)
+- **Discussions**: [GitHub Discussions](https://github.com/dasmrpmunna/discussions)
 - **Email**: mrpmunnadas@gmail.com.com
 
 ## 🗺️ Roadmap
