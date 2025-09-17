@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from tensorflow.keras.models import load_model
 
 # Load environment variables from .env
 load_dotenv()
@@ -51,12 +50,3 @@ config = {
     'production': ProductionConfig,
     'default': DevelopmentConfig
 }
-
-
-# ✅ Load model once here so that whole app can reuse it
-try:
-    model = load_model(Config.MODEL_PATH, compile=False)
-    print(f"✅ Model loaded successfully from {Config.MODEL_PATH}")
-except Exception as e:
-    print(f"❌ Failed to load model: {e}")
-    model = None

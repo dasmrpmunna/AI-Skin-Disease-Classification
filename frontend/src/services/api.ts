@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { PredictionResult } from '../types';
 
-// Configure your backend API endpoint
-const API_BASE_URL = 'http://localhost:5000';
+// Configure your backend API endpoint - Updated to match backend port
+const API_BASE_URL = 'http://localhost:5001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -29,7 +29,6 @@ export const predictDisease = async (imageFile: File): Promise<PredictionResult>
   try {
     const formData = new FormData();
     formData.append('image', imageFile);
-    formData.append('file', imageFile);
 
     // Make API call to Flask backend
     const response = await api.post('/predict', formData, {
@@ -41,24 +40,38 @@ export const predictDisease = async (imageFile: File): Promise<PredictionResult>
     // Transform the response to match our PredictionResult interface
     const { data } = response;
     
+    // Handle different response formats
+    const predictedClass = data.predicted_class || data.prediction;
+    const confidence = data.confidence ? Math.round(data.confidence * 100) : 0;
+    const allPredictions = data.all_predictions || data.predictions || [];
+    
     return {
       id: Math.random().toString(36).substr(2, 9),
       timestamp: new Date().toISOString(),
       imageUrl: URL.createObjectURL(imageFile),
-      predictedClass: data.predicted_class || data.prediction,
-      confidence: Math.round((data.confidence || data.max_probability) * 100),
-      topPredictions: (data.top_predictions || data.predictions || []).slice(0, 3).map((pred: any) => ({
+      predictedClass: predictedClass,
+      confidence: confidence,
+      topPredictions: allPredictions.slice(0, 3).map((pred: any) => ({
         class: pred.class,
-        probability: (pred.probability || pred.confidence) * 100,
+        probability: pred.probability,
       })),
-      allPredictions: (data.all_predictions || data.predictions || []).map((pred: any) => ({
+      allPredictions: allPredictions.map((pred: any) => ({
         class: pred.class,
-        probability: (pred.probability || pred.confidence) * 100,
+        probability: pred.probability,
       })),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Prediction API error:', error);
-    throw new Error('Failed to get prediction from server. Make sure your Flask backend is running on http://localhost:5000');
+    
+    // More detailed error handling
+    if (error.response) {
+      const errorMessage = error.response.data?.message || error.response.data?.error || 'Server error occurred';
+      throw new Error(`Server Error: ${errorMessage}`);
+    } else if (error.request) {
+      throw new Error('Cannot connect to server. Make sure your Flask backend is running on http://localhost:5001');
+    } else {
+      throw new Error(`Request failed: ${error.message}`);
+    }
   }
 };
 
@@ -69,5 +82,15 @@ export const getModelMetrics = async () => {
   } catch (error) {
     console.error('Metrics API error:', error);
     throw new Error('Failed to get model metrics');
+  }
+};
+
+export const checkBackendHealth = async () => {
+  try {
+    const response = await api.get('/health');
+    return response.data;
+  } catch (error) {
+    console.error('Health check error:', error);
+    throw new Error('Backend health check failed');
   }
 };

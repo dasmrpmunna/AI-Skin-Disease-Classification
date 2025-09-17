@@ -1,30 +1,3 @@
-# import tensorflow as tf
-# from tensorflow.keras.models import load_model as keras_load_model
-# import numpy as np
-# import logging
-
-# logger = logging.getLogger(__name__)
-
-# def load_model(model_path):
-#     """
-#     Load the trained model
-    
-#     Args:
-#         model_path: Path to the saved model file
-    
-#     Returns:
-#         Loaded Keras model
-#     """
-#     try:
-#         # FIX: compile ko disable kar diya to avoid batch_shape error
-#         model = keras_load_model(model_path, compile=False)
-#         logger.info(f"Model loaded successfully from {model_path}")
-#         return model
-#     except Exception as e:
-#         logger.error(f"Error loading model from {model_path}: {e}")
-#         raise Exception(f"Failed to load model: {str(e)}")
-
-# utils/model_utils.py
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 import numpy as np
@@ -33,6 +6,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 def load_model_tf(model_path):
+    """
+    Load the trained model
+    
+    Args:
+        model_path: Path to the saved model file
+    
+    Returns:
+        Loaded Keras model
+    """
     try:
         model = load_model(model_path, compile=False)
         logger.info(f"Model loaded successfully from {model_path}")
@@ -40,7 +22,6 @@ def load_model_tf(model_path):
     except Exception as e:
         logger.error(f"Error loading model from {model_path}: {e}")
         raise Exception(f"Failed to load model: {str(e)}")
-
 
 def predict_disease(model, processed_image):
     """
@@ -54,7 +35,7 @@ def predict_disease(model, processed_image):
         Prediction probabilities array
     """
     try:
-        predictions = model.predict(processed_image)
+        predictions = model.predict(processed_image, verbose=0)
         probabilities = predictions[0]  # Remove batch dimension
         probabilities = probabilities / np.sum(probabilities)  # Normalize
         return probabilities
@@ -74,9 +55,9 @@ def get_model_info(model):
     """
     try:
         info = {
-            'input_shape': model.input_shape,
-            'output_shape': model.output_shape,
-            'total_params': model.count_params(),
+            'input_shape': str(model.input_shape),
+            'output_shape': str(model.output_shape),
+            'total_params': int(model.count_params()),
             'layers': len(model.layers),
             'expected_input_size': '128x128x3',
             'batch_size': 32

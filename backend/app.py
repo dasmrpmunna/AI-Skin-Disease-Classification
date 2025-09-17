@@ -5,8 +5,8 @@ from PIL import Image
 import io
 import os
 from utils.image_preprocessing import preprocess_image
-from utils.model_utils import load_model, predict_disease
-from config import Config, model  # ✅ model directly import from config
+from utils.model_utils import load_model_tf, predict_disease, get_model_info
+from config import Config
 import logging
 
 # Configure logging
@@ -38,9 +38,10 @@ DISEASE_CLASSES = [
 ]
 
 # Load your trained model on startup
+model = None
 try:
     if os.path.exists(config.MODEL_PATH):
-        model = load_model(config.MODEL_PATH)
+        model = load_model_tf(config.MODEL_PATH)
         logger.info("Model loaded successfully")
     else:
         logger.warning(f"Model file not found at {config.MODEL_PATH}")
@@ -85,8 +86,8 @@ def predict():
         for i, class_name in enumerate(DISEASE_CLASSES):
             all_predictions.append({
                 'class': class_name,
-                'probability': float(predictions[i]),
-                'confidence': float(predictions[i])
+                'probability': float(predictions[i]) * 100,  # Convert to percentage
+                'confidence': float(predictions[i]) * 100
             })
         
         # Sort by probability
@@ -98,20 +99,24 @@ def predict():
         response = {
             'predicted_class': top_prediction['class'],
             'prediction': top_prediction['class'],
-            'confidence': top_prediction['probability'],
-            'max_probability': top_prediction['probability'],
+            'confidence': top_prediction['probability'] / 100,  # Keep as decimal for compatibility
+            'max_probability': top_prediction['probability'] / 100,
             'predictions': all_predictions,
             'all_predictions': all_predictions,
             'top_predictions': all_predictions[:3],
             'status': 'success'
         }
         
-        logger.info(f"Prediction successful: {top_prediction['class']} ({top_prediction['probability']:.2f})")
+        logger.info(f"Prediction successful: {top_prediction['class']} ({top_prediction['probability']:.2f}%)")
         return jsonify(response)
         
     except Exception as e:
         logger.error(f"Prediction error: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'error': str(e),
+            'message': 'Prediction failed. Please check your model file and try again.',
+            'status': 'error'
+        }), 500
 
 @app.route('/metrics', methods=['GET'])
 def get_metrics():
@@ -128,7 +133,6 @@ def health_check():
     """Health check endpoint"""
     model_info = {}
     if model is not None:
-        from utils.model_utils import get_model_info
         model_info = get_model_info(model)
     
     return jsonify({
@@ -137,7 +141,8 @@ def health_check():
         'model_loaded': model is not None,
         'model_info': model_info,
         'image_size': config.IMAGE_SIZE,
-        'batch_size': config.BATCH_SIZE
+        'batch_size': config.BATCH_SIZE,
+        'model_path': config.MODEL_PATH
     })
 
 @app.errorhandler(413)

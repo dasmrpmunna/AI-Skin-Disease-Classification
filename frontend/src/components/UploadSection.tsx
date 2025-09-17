@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react';
+import { Upload, Image as ImageIcon, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PredictionResult } from '../types';
-import { predictDisease } from '../services/api';
+import { predictDisease, checkBackendHealth } from '../services/api';
 
 interface UploadSectionProps {
   onPredictionComplete: (result: PredictionResult) => void;
@@ -18,6 +18,21 @@ const UploadSection: React.FC<UploadSectionProps> = ({
 }) => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+
+  // Check backend health on component mount
+  React.useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        await checkBackendHealth();
+        setBackendStatus('connected');
+      } catch (err) {
+        setBackendStatus('error');
+        setError('Cannot connect to backend server. Please make sure the Flask backend is running on port 5001.');
+      }
+    };
+    checkHealth();
+  }, []);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -32,8 +47,9 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       try {
         const result = await predictDisease(file);
         onPredictionComplete(result);
-      } catch (err) {
-        setError('Failed to predict disease. Please try again.');
+      } catch (err: any) {
+        console.error('Prediction error:', err);
+        setError(err.message || 'Failed to predict disease. Please try again.');
       } finally {
         setIsLoading(false);
       }
@@ -47,6 +63,7 @@ const UploadSection: React.FC<UploadSectionProps> = ({
       'image/*': ['.png', '.jpg', '.jpeg'],
     },
     maxFiles: 1,
+    disabled: isLoading || backendStatus === 'error',
   });
 
   return (
@@ -61,15 +78,37 @@ const UploadSection: React.FC<UploadSectionProps> = ({
         </p>
       </div>
 
+      {/* Backend Status Indicator */}
+      <div className="flex justify-center">
+        <div className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium ${
+          backendStatus === 'connected' 
+            ? 'bg-green-100 text-green-800' 
+            : backendStatus === 'error'
+              ? 'bg-red-100 text-red-800'
+              : 'bg-yellow-100 text-yellow-800'
+        }`}>
+          {backendStatus === 'connected' && <CheckCircle className="h-4 w-4" />}
+          {backendStatus === 'error' && <AlertCircle className="h-4 w-4" />}
+          {backendStatus === 'checking' && <Loader2 className="h-4 w-4 animate-spin" />}
+          <span>
+            {backendStatus === 'connected' && 'Backend Connected'}
+            {backendStatus === 'error' && 'Backend Disconnected'}
+            {backendStatus === 'checking' && 'Checking Backend...'}
+          </span>
+        </div>
+      </div>
+
       <motion.div
         {...getRootProps()}
         className={`relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300 ${
           isDragActive
             ? 'border-blue-400 bg-blue-50'
-            : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
-        } ${isLoading ? 'pointer-events-none opacity-50' : ''}`}
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.99 }}
+            : backendStatus === 'error'
+              ? 'border-red-300 bg-red-50'
+              : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+        } ${isLoading || backendStatus === 'error' ? 'pointer-events-none opacity-50' : ''}`}
+        whileHover={{ scale: backendStatus === 'connected' ? 1.01 : 1 }}
+        whileTap={{ scale: backendStatus === 'connected' ? 0.99 : 1 }}
       >
         <input {...getInputProps()} />
         
@@ -101,6 +140,21 @@ const UploadSection: React.FC<UploadSectionProps> = ({
               </p>
             </div>
           </div>
+        ) : backendStatus === 'error' ? (
+          <div className="space-y-4">
+            <AlertCircle className="h-16 w-16 text-red-400 mx-auto" />
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Backend Connection Error
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Cannot connect to the prediction server
+              </p>
+              <p className="text-sm text-gray-500">
+                Please ensure the Flask backend is running on port 5001
+              </p>
+            </div>
+          </div>
         ) : (
           <div className="space-y-4">
             <Upload className="h-16 w-16 text-gray-400 mx-auto" />
@@ -126,7 +180,10 @@ const UploadSection: React.FC<UploadSectionProps> = ({
           className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3"
         >
           <AlertCircle className="h-5 w-5 text-red-600" />
-          <p className="text-red-700">{error}</p>
+          <div>
+            <p className="text-red-700 font-medium">Prediction Failed</p>
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
         </motion.div>
       )}
 
