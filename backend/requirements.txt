@@ -6,3 +6,5 @@ tensorflow==2.13.0
 opencv-python==4.8.1.78
 gunicorn==21.2.0
 python-dotenv==1.0.0
+
+keras==2.13.1

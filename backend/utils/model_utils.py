@@ -1,27 +1,46 @@
+# import tensorflow as tf
+# from tensorflow.keras.models import load_model as keras_load_model
+# import numpy as np
+# import logging
+
+# logger = logging.getLogger(__name__)
+
+# def load_model(model_path):
+#     """
+#     Load the trained model
+    
+#     Args:
+#         model_path: Path to the saved model file
+    
+#     Returns:
+#         Loaded Keras model
+#     """
+#     try:
+#         # FIX: compile ko disable kar diya to avoid batch_shape error
+#         model = keras_load_model(model_path, compile=False)
+#         logger.info(f"Model loaded successfully from {model_path}")
+#         return model
+#     except Exception as e:
+#         logger.error(f"Error loading model from {model_path}: {e}")
+#         raise Exception(f"Failed to load model: {str(e)}")
+
+# utils/model_utils.py
 import tensorflow as tf
-from tensorflow.keras.models import load_model as keras_load_model
+from tensorflow.keras.models import load_model
 import numpy as np
 import logging
 
 logger = logging.getLogger(__name__)
 
-def load_model(model_path):
-    """
-    Load the trained model
-    
-    Args:
-        model_path: Path to the saved model file
-    
-    Returns:
-        Loaded Keras model
-    """
+def load_model_tf(model_path):
     try:
-        model = keras_load_model(model_path)
+        model = load_model(model_path, compile=False)
         logger.info(f"Model loaded successfully from {model_path}")
         return model
     except Exception as e:
         logger.error(f"Error loading model from {model_path}: {e}")
         raise Exception(f"Failed to load model: {str(e)}")
+
 
 def predict_disease(model, processed_image):
     """
@@ -35,17 +54,10 @@ def predict_disease(model, processed_image):
         Prediction probabilities array
     """
     try:
-        # Make prediction
         predictions = model.predict(processed_image)
-        
-        # Get probabilities (assuming softmax output)
         probabilities = predictions[0]  # Remove batch dimension
-        
-        # Ensure probabilities sum to 1
-        probabilities = probabilities / np.sum(probabilities)
-        
+        probabilities = probabilities / np.sum(probabilities)  # Normalize
         return probabilities
-        
     except Exception as e:
         logger.error(f"Error making prediction: {e}")
         raise Exception(f"Prediction failed: {str(e)}")
@@ -86,7 +98,6 @@ def validate_prediction(predictions, threshold=0.1):
         bool: True if prediction is valid
     """
     try:
-        # Check if max probability is above threshold
         max_prob = np.max(predictions)
         return max_prob >= threshold
     except Exception:

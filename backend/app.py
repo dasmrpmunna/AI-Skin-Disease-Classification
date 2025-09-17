@@ -6,7 +6,7 @@ import io
 import os
 from utils.image_preprocessing import preprocess_image
 from utils.model_utils import load_model, predict_disease
-from config import Config
+from config import Config, model  # ✅ model directly import from config
 import logging
 
 # Configure logging
