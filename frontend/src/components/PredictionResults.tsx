@@ -67,15 +67,15 @@ const PredictionResults: React.FC<PredictionResultsProps> = ({ result }) => {
   ];
 
   const diseaseClasses = [
-    'Actinic Keratosis',
-    'Pigmented Benign Keratosis',
-    'Melanoma',
-    'Vascular Lesion',
     'Squamous Cell Carcinoma',
     'Basal Cell Carcinoma',
-    'Seborrheic Keratosis',
     'Dermatofibroma',
-    'Nevus'
+    'Vascular Lesion',
+    'Melanoma',
+    'Pigmented Benign Keratosis',
+    'Nevus',
+    'Seborrheic Keratosis',
+    'Actinic Keratosis'
   ];
 
   return (

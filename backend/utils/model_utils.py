@@ -37,7 +37,6 @@ def predict_disease(model, processed_image):
     try:
         predictions = model.predict(processed_image, verbose=0)
         probabilities = predictions[0]  # Remove batch dimension
-        probabilities = probabilities / np.sum(probabilities)  # Normalize
         return probabilities
     except Exception as e:
         logger.error(f"Error making prediction: {e}")

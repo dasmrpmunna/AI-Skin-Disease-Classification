@@ -26,15 +26,15 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Disease classes - update these to match your model
 DISEASE_CLASSES = [
-    'Actinic Keratosis',
-    'Pigmented Benign Keratosis',
-    'Melanoma',
-    'Vascular Lesion',
     'Squamous Cell Carcinoma',
     'Basal Cell Carcinoma',
-    'Seborrheic Keratosis',
     'Dermatofibroma',
-    'Nevus'
+    'Vascular Lesion',
+    'Melanoma',
+    'Pigmented Benign Keratosis',
+    'Nevus',
+    'Seborrheic Keratosis',
+    'Actinic Keratosis'
 ]
 
 # Load your trained model on startup
@@ -96,6 +96,9 @@ def predict():
         # Get top prediction
         top_prediction = all_predictions[0]
         
+        # Get top 3 predictions
+        top_3_predictions = all_predictions[:3]
+        
         response = {
             'predicted_class': top_prediction['class'],
             'prediction': top_prediction['class'],
@@ -103,7 +106,7 @@ def predict():
             'max_probability': top_prediction['probability'] / 100,
             'predictions': all_predictions,
             'all_predictions': all_predictions,
-            'top_predictions': all_predictions[:3],
+            'top_predictions': top_3_predictions,
             'status': 'success'
         }
         

@@ -12,19 +12,6 @@ const api = axios.create({
   },
 });
 
-// Disease classes matching your model
-const DISEASE_CLASSES = [
-  'Actinic Keratosis',
-  'Pigmented Benign Keratosis',
-  'Melanoma',
-  'Vascular Lesion',
-  'Squamous Cell Carcinoma',
-  'Basal Cell Carcinoma',
-  'Seborrheic Keratosis',
-  'Dermatofibroma',
-  'Nevus',
-];
-
 export const predictDisease = async (imageFile: File): Promise<PredictionResult> => {
   try {
     const formData = new FormData();
@@ -43,7 +30,8 @@ export const predictDisease = async (imageFile: File): Promise<PredictionResult>
     // Handle different response formats
     const predictedClass = data.predicted_class || data.prediction;
     const confidence = data.confidence ? Math.round(data.confidence * 100) : 0;
-    const allPredictions = data.all_predictions || data.predictions || [];
+    const allPredictions = data.predictions || data.all_predictions || [];
+    const topPredictions = data.top_predictions || allPredictions.slice(0, 3);
     
     return {
       id: Math.random().toString(36).substr(2, 9),
@@ -51,7 +39,7 @@ export const predictDisease = async (imageFile: File): Promise<PredictionResult>
       imageUrl: URL.createObjectURL(imageFile),
       predictedClass: predictedClass,
       confidence: confidence,
-      topPredictions: allPredictions.slice(0, 3).map((pred: any) => ({
+      topPredictions: topPredictions.map((pred: any) => ({
         class: pred.class,
         probability: pred.probability,
       })),
