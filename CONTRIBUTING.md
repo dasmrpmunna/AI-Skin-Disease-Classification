@@ -40,7 +40,7 @@ Thank you for your interest in contributing to our AI-powered skin disease class
 ### Local Development
 ```bash
 # Clone your fork
-git clone https://github.com/yourusername/ai-skin-disease-classification.git
+git clone https://github.com/dasmrpmunna/ai-skin-disease-classification.git
 cd ai-skin-disease-classification
 
 # Set up backend
