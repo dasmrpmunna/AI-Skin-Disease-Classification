@@ -12,7 +12,7 @@
 
 > Home Page:
 
-![Home Page](images/Home page.png)
+![Home Page](images/1.png)
 
 > Click to select Real Audio File and Detect Output:
 
