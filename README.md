@@ -8,7 +8,34 @@
 
 > An advanced AI-powered web application for automated skin disease classification using deep learning. Built with VGG19 architecture achieving 86.8% accuracy across 9 disease classes.
 
-![Demo Screenshot](https://via.placeholder.com/800x400/4F46E5/FFFFFF?text=AI+Skin+Disease+Classification+Dashboard)
+## 🖼️ [Demo Screenshot]
+
+> Home Page:
+
+![Home Page](images/Home page.png)
+
+> Click to select Real Audio File and Detect Output:
+
+![Predict Real Page](images/2.png)
+
+> Click to select Fake Audio File and Detect:
+
+![Predict Fake Page](images/3.png)
+
+> About Page:
+
+![About Page](images/4.png)
+
+> Technology Page:
+
+![Technology Page](images/5.png)
+
+> Contact Page:
+
+![Contact Page](images/6.png)
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 ## 🌟 Features
 
