@@ -14,25 +14,25 @@
 
 ![Home Page](images/1.png)
 
-> Click to select Real Audio File and Detect Output:
+> Result Page:
 
-![Predict Real Page](images/2.png)
+![Predict Page](images/2.png)
 
-> Click to select Fake Audio File and Detect:
+> Result Page:
 
-![Predict Fake Page](images/3.png)
+![Predict Page](images/3.png)
 
-> About Page:
+> Model Accuracy Page:
 
-![About Page](images/4.png)
+![Model Accuracy](images/4.png)
 
-> Technology Page:
+> Prediction History Page:
 
-![Technology Page](images/5.png)
+![Prediction History Page](images/5.png)
 
-> Contact Page:
+> Disease Types and Information:
 
-![Contact Page](images/6.png)
+![Disease Types and information](images/6.png)
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
